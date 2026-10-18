@@ -1,0 +1,14 @@
+{
+	"name": "ls_sql_serving",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"server": "sql-uae-banking-dev-417.database.windows.net",
+			"database": "sqldb-banking-serving",
+			"encrypt": "mandatory",
+			"trustServerCertificate": false,
+			"authenticationType": "SystemAssignedManagedIdentity"
+		}
+	}
+}
