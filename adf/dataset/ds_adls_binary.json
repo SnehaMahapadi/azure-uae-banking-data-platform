@@ -1,0 +1,23 @@
+{
+	"name": "ds_adls_binary",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_uaebank",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [
+			"p_container",
+			"p_directory",
+			"p_file"
+		],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "@dataset().p_file",
+				"folderPath": "@dataset().p_directory",
+				"fileSystem": "@dataset().p_container"
+			}
+		}
+	}
+}
