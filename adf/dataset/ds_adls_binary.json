@@ -5,6 +5,17 @@
 			"referenceName": "ls_adls_uaebank",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"p_container": {
+				"type": "string"
+			},
+			"p_directory": {
+				"type": "string"
+			},
+			"p_file": {
+				"type": "string"
+			}
+		},
 		"annotations": [
 			"p_container",
 			"p_directory",
