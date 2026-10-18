@@ -1,0 +1,147 @@
+{
+  "seed": 7,
+  "note": "Answer key. Try to find the issues yourself before reading.",
+  "transactions": {
+    "2026-01": {
+      "rows_in_file": 22088,
+      "unique_transaction_ids": 22000,
+      "issues": {
+        "exact_duplicate_rows": 88,
+        "late_arriving_rows": 0,
+        "missing_amount": 33,
+        "negative_purchase_amount": 22,
+        "currency_lowercase": 66,
+        "currency_trailing_space": 22,
+        "orphan_merchant_id": 44,
+        "orphan_account_id": 11,
+        "timestamp_ddmmyyyy_format": 22
+      }
+    },
+    "2026-02": {
+      "rows_in_file": 22750,
+      "unique_transaction_ids": 22660,
+      "issues": {
+        "exact_duplicate_rows": 90,
+        "late_arriving_rows": 272,
+        "missing_amount": 33,
+        "negative_purchase_amount": 22,
+        "currency_lowercase": 67,
+        "currency_trailing_space": 23,
+        "orphan_merchant_id": 45,
+        "orphan_account_id": 11,
+        "timestamp_ddmmyyyy_format": 22
+      }
+    },
+    "2026-03": {
+      "rows_in_file": 23413,
+      "unique_transaction_ids": 23320,
+      "issues": {
+        "exact_duplicate_rows": 93,
+        "late_arriving_rows": 282,
+        "missing_amount": 34,
+        "negative_purchase_amount": 23,
+        "currency_lowercase": 70,
+        "currency_trailing_space": 23,
+        "orphan_merchant_id": 46,
+        "orphan_account_id": 11,
+        "timestamp_ddmmyyyy_format": 23
+      }
+    },
+    "2026-04": {
+      "rows_in_file": 24075,
+      "unique_transaction_ids": 23980,
+      "issues": {
+        "exact_duplicate_rows": 95,
+        "late_arriving_rows": 287,
+        "missing_amount": 35,
+        "negative_purchase_amount": 23,
+        "currency_lowercase": 71,
+        "currency_trailing_space": 23,
+        "orphan_merchant_id": 47,
+        "orphan_account_id": 11,
+        "timestamp_ddmmyyyy_format": 23
+      }
+    },
+    "2026-05": {
+      "rows_in_file": 24738,
+      "unique_transaction_ids": 24640,
+      "issues": {
+        "exact_duplicate_rows": 98,
+        "late_arriving_rows": 297,
+        "missing_amount": 36,
+        "negative_purchase_amount": 24,
+        "currency_lowercase": 73,
+        "currency_trailing_space": 25,
+        "orphan_merchant_id": 49,
+        "orphan_account_id": 12,
+        "timestamp_ddmmyyyy_format": 24
+      }
+    },
+    "2026-06": {
+      "rows_in_file": 25400,
+      "unique_transaction_ids": 25299,
+      "issues": {
+        "exact_duplicate_rows": 101,
+        "late_arriving_rows": 305,
+        "missing_amount": 38,
+        "negative_purchase_amount": 25,
+        "currency_lowercase": 75,
+        "currency_trailing_space": 25,
+        "orphan_merchant_id": 50,
+        "orphan_account_id": 12,
+        "timestamp_ddmmyyyy_format": 25
+      }
+    },
+    "2026-07": {
+      "rows_in_file": 26063,
+      "unique_transaction_ids": 25960,
+      "issues": {
+        "exact_duplicate_rows": 103,
+        "late_arriving_rows": 312,
+        "missing_amount": 38,
+        "negative_purchase_amount": 25,
+        "currency_lowercase": 77,
+        "currency_trailing_space": 25,
+        "orphan_merchant_id": 51,
+        "orphan_account_id": 12,
+        "timestamp_ddmmyyyy_format": 25
+      }
+    },
+    "2026-08": {
+      "rows_in_file": 26726,
+      "unique_transaction_ids": 26620,
+      "issues": {
+        "exact_duplicate_rows": 106,
+        "late_arriving_rows": 322,
+        "missing_amount": 39,
+        "negative_purchase_amount": 26,
+        "currency_lowercase": 79,
+        "currency_trailing_space": 26,
+        "orphan_merchant_id": 54,
+        "orphan_account_id": 13,
+        "timestamp_ddmmyyyy_format": 26
+      }
+    },
+    "2026-09": {
+      "rows_in_file": 27389,
+      "unique_transaction_ids": 27280,
+      "issues": {
+        "exact_duplicate_rows": 109,
+        "late_arriving_rows": 328,
+        "missing_amount": 40,
+        "negative_purchase_amount": 27,
+        "currency_lowercase": 81,
+        "currency_trailing_space": 27,
+        "orphan_merchant_id": 54,
+        "orphan_account_id": 13,
+        "timestamp_ddmmyyyy_format": 27
+      }
+    }
+  },
+  "customers": 5000,
+  "customer_changes": 750,
+  "accounts": 7834,
+  "merchants": 600,
+  "fx_rates": 819,
+  "total_transaction_rows_in_files": 222642
+}

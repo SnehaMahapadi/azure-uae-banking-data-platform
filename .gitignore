@@ -1,0 +1,30 @@
+# Generated data (regenerate with scripts/generate_dataset.py)
+data/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Secrets - never commit
+*.env
+.env
+*secret*
+*token*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Azure / Databricks / local tooling - never commit
+*.pem
+*.pfx
+*.key
+*.publishsettings
+.azure/
+.databrickscfg
+local.settings.json
+*.tfstate
+*.tfstate.*
+*.pbix
