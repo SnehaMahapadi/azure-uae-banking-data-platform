@@ -38,6 +38,25 @@
 						"type": "BinaryReadSettings"
 					}
 				}
+			},
+			{
+				"name": "if_exists",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "chk_file_exists",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@activity('chk_file_exists').output.exists",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
