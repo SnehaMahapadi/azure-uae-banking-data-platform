@@ -1,6 +1,45 @@
 {
 	"name": "pl_ingest_transactions",
 	"properties": {
+		"activities": [
+			{
+				"name": "chk_file_exists",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_adls_binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_container": "landing",
+							"p_directory": {
+								"value": "@concat('raw/transactions/2026/', pipeline().parameters.month)",
+								"type": "Expression"
+							},
+							"p_file": "@concat('transactions_2026_', pipeline().parameters.month, '.csv')"
+						}
+					},
+					"fieldList": [
+						"exists"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "BinaryReadSettings"
+					}
+				}
+			}
+		],
 		"parameters": {
 			"month": {
 				"type": "string",
