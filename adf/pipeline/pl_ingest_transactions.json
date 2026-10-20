@@ -1,0 +1,12 @@
+{
+	"name": "pl_ingest_transactions",
+	"properties": {
+		"parameters": {
+			"month": {
+				"type": "string",
+				"defaultValue": "01"
+			}
+		},
+		"annotations": []
+	}
+}
