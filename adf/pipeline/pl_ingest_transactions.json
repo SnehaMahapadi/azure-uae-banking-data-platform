@@ -110,6 +110,39 @@
 									}
 								}
 							]
+						},
+						{
+							"name": "log_success",
+							"type": "Script",
+							"dependsOn": [
+								{
+									"activity": "copy_transactions",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "ls_sql_serving",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "NonQuery",
+										"text": "INSERT INTO ctl.load_log (dataset, file_name, load_date, rows_copied, status, error_message, run_id)\nVALUES ('transactions', 'transactions_2026_@{pipeline().parameters.month}.csv', CAST(SYSUTCDATETIME() AS DATE), NULL, 'SUCCEEDED', NULL, '@{pipeline().RunId}');"
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
 						}
 					]
 				}
