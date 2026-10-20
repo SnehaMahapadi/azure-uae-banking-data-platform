@@ -55,7 +55,63 @@
 					"expression": {
 						"value": "@activity('chk_file_exists').output.exists",
 						"type": "Expression"
-					}
+					},
+					"ifTrueActivities": [
+						{
+							"name": "copy_transactions",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "BinarySource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true
+									},
+									"formatSettings": {
+										"type": "BinaryReadSettings"
+									}
+								},
+								"sink": {
+									"type": "BinarySink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_adls_binary",
+									"type": "DatasetReference",
+									"parameters": {
+										"p_container": "landing",
+										"p_directory": "@concat('raw/transactions/2026/', pipeline().parameters.month)",
+										"p_file": "@concat('transactions_2026_', pipeline().parameters.month, '.csv')"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_adls_binary",
+									"type": "DatasetReference",
+									"parameters": {
+										"p_container": "bronze",
+										"p_directory": "@concat('raw/transactions/month=2026-', pipeline().parameters.month)",
+										"p_file": "@concat('transactions_2026_', pipeline().parameters.month, '.csv')"
+									}
+								}
+							]
+						}
+					]
 				}
 			}
 		],
