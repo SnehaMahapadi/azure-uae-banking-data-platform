@@ -56,6 +56,171 @@
 						}
 					}
 				]
+			},
+			{
+				"name": "copy_customers",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"deleteFilesAfterCompletion": false
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adls_binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_container": "landing",
+							"p_directory": "raw/customers",
+							"p_file": "customers_initial.csv"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_container": "bronze",
+							"p_directory": "raw/customers/load_date=2026-10-18",
+							"p_file": "customers_initial.csv"
+						}
+					}
+				]
+			},
+			{
+				"name": "copy_fx_rates",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"deleteFilesAfterCompletion": false
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adls_binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_container": "landing",
+							"p_directory": "raw/fx_rates",
+							"p_file": "fx_rates.csv"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_container": "bronze",
+							"p_directory": "raw/fx_rates/load_date=2026-10-18",
+							"p_file": "fx_rates.csv"
+						}
+					}
+				]
+			},
+			{
+				"name": "copy_merchants",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"deleteFilesAfterCompletion": false
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adls_binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_container": "landing",
+							"p_directory": "raw/merchants",
+							"p_file": "merchants.jsonl"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_container": "bronze",
+							"p_directory": "raw/merchants/load_date=2026-10-18",
+							"p_file": "merchants.jsonl"
+						}
+					}
+				]
 			}
 		],
 		"annotations": []
