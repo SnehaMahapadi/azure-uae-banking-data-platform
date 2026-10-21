@@ -83,6 +83,23 @@
 								],
 								"scriptBlockExecutionTimeout": "02:00:00"
 							}
+						},
+						{
+							"name": "fail_missing_file",
+							"type": "Fail",
+							"dependsOn": [
+								{
+									"activity": "log_failure",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"message": "Source file not found in landing",
+								"errorCode": "FileNotFound"
+							}
 						}
 					],
 					"ifTrueActivities": [
