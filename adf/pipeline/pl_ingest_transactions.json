@@ -32,6 +32,7 @@
 					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					},
 					"formatSettings": {
@@ -56,6 +57,34 @@
 						"value": "@activity('chk_file_exists').output.exists",
 						"type": "Expression"
 					},
+					"ifFalseActivities": [
+						{
+							"name": "log_failure",
+							"type": "Script",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 20,
+								"retryIntervalInSeconds": 60,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "ls_sql_serving",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "NonQuery",
+										"text": "INSERT INTO ctl.load_log (dataset, file_name, load_date, rows_copied, status, error_message, run_id)\nVALUES ('transactions', 'transactions_2026_@{pipeline().parameters.month}.csv', CAST(SYSUTCDATETIME() AS DATE), NULL, 'FAILED', 'Source file not found in landing', '@{pipeline().RunId}');"
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						}
+					],
 					"ifTrueActivities": [
 						{
 							"name": "copy_transactions",
@@ -138,7 +167,10 @@
 								"scripts": [
 									{
 										"type": "NonQuery",
-										"text": "INSERT INTO ctl.load_log (dataset, file_name, load_date, rows_copied, status, error_message, run_id)\nVALUES ('transactions', 'transactions_2026_@{pipeline().parameters.month}.csv', CAST(SYSUTCDATETIME() AS DATE), NULL, 'SUCCEEDED', NULL, '@{pipeline().RunId}');"
+										"text": {
+											"value": "INSERT INTO ctl.load_log (dataset, file_name, load_date, rows_copied, status, error_message, run_id)\nVALUES ('transactions', 'transactions_2026_@{pipeline().parameters.month}.csv', CAST(SYSUTCDATETIME() AS DATE), NULL, 'SUCCEEDED', NULL, '@{pipeline().RunId}');",
+											"type": "Expression"
+										}
 									}
 								],
 								"scriptBlockExecutionTimeout": "02:00:00"
