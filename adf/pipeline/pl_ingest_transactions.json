@@ -64,8 +64,8 @@
 							"dependsOn": [],
 							"policy": {
 								"timeout": "0.12:00:00",
-								"retry": 20,
-								"retryIntervalInSeconds": 60,
+								"retry": 3,
+								"retryIntervalInSeconds": 90,
 								"secureOutput": false,
 								"secureInput": false
 							},
@@ -78,7 +78,10 @@
 								"scripts": [
 									{
 										"type": "NonQuery",
-										"text": "INSERT INTO ctl.load_log (dataset, file_name, load_date, rows_copied, status, error_message, run_id)\nVALUES ('transactions', 'transactions_2026_@{pipeline().parameters.month}.csv', CAST(SYSUTCDATETIME() AS DATE), NULL, 'FAILED', 'Source file not found in landing', '@{pipeline().RunId}');"
+										"text": {
+											"value": "INSERT INTO ctl.load_log (dataset, file_name, load_date, rows_copied, status, error_message, run_id)\nVALUES ('transactions', 'transactions_2026_@{pipeline().parameters.month}.csv', CAST(SYSUTCDATETIME() AS DATE), NULL, 'FAILED', 'Source file not found in landing', '@{pipeline().RunId}');",
+											"type": "Expression"
+										}
 									}
 								],
 								"scriptBlockExecutionTimeout": "02:00:00"
@@ -170,8 +173,8 @@
 							],
 							"policy": {
 								"timeout": "0.12:00:00",
-								"retry": 2,
-								"retryIntervalInSeconds": 60,
+								"retry": 3,
+								"retryIntervalInSeconds": 90,
 								"secureOutput": false,
 								"secureInput": false
 							},
