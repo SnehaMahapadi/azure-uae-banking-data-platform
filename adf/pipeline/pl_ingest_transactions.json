@@ -228,8 +228,23 @@
 			{
 				"name": "if_not_loaded",
 				"type": "IfCondition",
-				"dependsOn": [],
-				"userProperties": []
+				"state": "Active",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [
+					{
+						"activity": "chk_already_loaded",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@lessOrEquals(int(activity('chk_already_loaded').output.resultSets[0].rows[0].n), 0)",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
