@@ -198,6 +198,32 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "chk_already_loaded",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 90,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_sql_serving",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": "SELECT COUNT(*) AS n\nFROM ctl.load_log\nWHERE dataset = 'transactions'\n  AND file_name = 'transactions_2026_@{pipeline().parameters.month}.csv'\n  AND status = 'SUCCEEDED'"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
 			}
 		],
 		"parameters": {
