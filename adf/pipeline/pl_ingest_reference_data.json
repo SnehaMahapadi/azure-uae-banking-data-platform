@@ -261,7 +261,7 @@
 						"parameters": {
 							"p_container": "landing",
 							"p_directory": "raw/customers",
-							"p_file": "customers_initial.csv"
+							"p_file": "customer_changes.csv"
 						}
 					}
 				],
