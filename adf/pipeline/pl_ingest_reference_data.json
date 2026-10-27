@@ -223,7 +223,7 @@
 				]
 			},
 			{
-				"name": "customer_changes",
+				"name": "copy_customer_changes",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
