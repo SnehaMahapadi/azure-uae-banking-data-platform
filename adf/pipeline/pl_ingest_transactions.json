@@ -3,6 +3,35 @@
 	"properties": {
 		"activities": [
 			{
+				"name": "chk_already_loaded",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 90,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_sql_serving",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": {
+								"value": "SELECT COUNT(*) AS n\nFROM ctl.load_log\nWHERE dataset = 'transactions'\n  AND file_name = 'transactions_2026_@{pipeline().parameters.month}.csv'\n  AND status = 'SUCCEEDED'",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
 				"name": "chk_file_exists",
 				"type": "GetMetadata",
 				"dependsOn": [],
@@ -41,9 +70,15 @@
 				}
 			},
 			{
-				"name": "if_exists",
-				"type": "IfCondition",
+				"name": "route_load",
+				"type": "Switch",
 				"dependsOn": [
+					{
+						"activity": "chk_already_loaded",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
 					{
 						"activity": "chk_file_exists",
 						"dependencyConditions": [
@@ -53,197 +88,158 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
-					"expression": {
-						"value": "@activity('chk_file_exists').output.exists",
+					"on": {
+						"value": "@if(greater(int(activity('chk_already_loaded').output.resultSets[0].rows[0].n),0),'skip',if(activity('chk_file_exists').output.exists,'load','missing'))",
 						"type": "Expression"
 					},
-					"ifFalseActivities": [
+					"cases": [
 						{
-							"name": "log_failure",
-							"type": "Script",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 3,
-								"retryIntervalInSeconds": 90,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"linkedServiceName": {
-								"referenceName": "ls_sql_serving",
-								"type": "LinkedServiceReference"
-							},
-							"typeProperties": {
-								"scripts": [
-									{
-										"type": "NonQuery",
-										"text": {
-											"value": "INSERT INTO ctl.load_log (dataset, file_name, load_date, rows_copied, status, error_message, run_id)\nVALUES ('transactions', 'transactions_2026_@{pipeline().parameters.month}.csv', CAST(SYSUTCDATETIME() AS DATE), NULL, 'FAILED', 'Source file not found in landing', '@{pipeline().RunId}');",
-											"type": "Expression"
-										}
-									}
-								],
-								"scriptBlockExecutionTimeout": "02:00:00"
-							}
-						},
-						{
-							"name": "fail_missing_file",
-							"type": "Fail",
-							"dependsOn": [
+							"value": "load",
+							"activities": [
 								{
-									"activity": "log_failure",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"userProperties": [],
-							"typeProperties": {
-								"message": "Source file not found in landing",
-								"errorCode": "FileNotFound"
-							}
-						}
-					],
-					"ifTrueActivities": [
-						{
-							"name": "copy_transactions",
-							"type": "Copy",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "BinarySource",
-									"storeSettings": {
-										"type": "AzureBlobFSReadSettings",
-										"recursive": true
+									"name": "copy_transactions",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
 									},
-									"formatSettings": {
-										"type": "BinaryReadSettings"
-									}
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "BinarySource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true
+											},
+											"formatSettings": {
+												"type": "BinaryReadSettings"
+											}
+										},
+										"sink": {
+											"type": "BinarySink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_adls_binary",
+											"type": "DatasetReference",
+											"parameters": {
+												"p_container": "landing",
+												"p_directory": "@concat('raw/transactions/2026/', pipeline().parameters.month)",
+												"p_file": "@concat('transactions_2026_', pipeline().parameters.month, '.csv')"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_adls_binary",
+											"type": "DatasetReference",
+											"parameters": {
+												"p_container": "bronze",
+												"p_directory": "@concat('raw/transactions/month=2026-', pipeline().parameters.month)",
+												"p_file": "@concat('transactions_2026_', pipeline().parameters.month, '.csv')"
+											}
+										}
+									]
 								},
-								"sink": {
-									"type": "BinarySink",
-									"storeSettings": {
-										"type": "AzureBlobFSWriteSettings"
-									}
-								},
-								"enableStaging": false
-							},
-							"inputs": [
 								{
-									"referenceName": "ds_adls_binary",
-									"type": "DatasetReference",
-									"parameters": {
-										"p_container": "landing",
-										"p_directory": "@concat('raw/transactions/2026/', pipeline().parameters.month)",
-										"p_file": "@concat('transactions_2026_', pipeline().parameters.month, '.csv')"
-									}
-								}
-							],
-							"outputs": [
-								{
-									"referenceName": "ds_adls_binary",
-									"type": "DatasetReference",
-									"parameters": {
-										"p_container": "bronze",
-										"p_directory": "@concat('raw/transactions/month=2026-', pipeline().parameters.month)",
-										"p_file": "@concat('transactions_2026_', pipeline().parameters.month, '.csv')"
+									"name": "log_success",
+									"type": "Script",
+									"dependsOn": [
+										{
+											"activity": "copy_transactions",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 3,
+										"retryIntervalInSeconds": 90,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "ls_sql_serving",
+										"type": "LinkedServiceReference"
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "NonQuery",
+												"text": {
+													"value": "INSERT INTO ctl.load_log (dataset, file_name, load_date, rows_copied, status, error_message, run_id)\nVALUES ('transactions', 'transactions_2026_@{pipeline().parameters.month}.csv', CAST(SYSUTCDATETIME() AS DATE), NULL, 'SUCCEEDED', NULL, '@{pipeline().RunId}');",
+													"type": "Expression"
+												}
+											}
+										],
+										"scriptBlockExecutionTimeout": "02:00:00"
 									}
 								}
 							]
 						},
 						{
-							"name": "log_success",
-							"type": "Script",
-							"dependsOn": [
+							"value": "missing",
+							"activities": [
 								{
-									"activity": "copy_transactions",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 3,
-								"retryIntervalInSeconds": 90,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"linkedServiceName": {
-								"referenceName": "ls_sql_serving",
-								"type": "LinkedServiceReference"
-							},
-							"typeProperties": {
-								"scripts": [
-									{
-										"type": "NonQuery",
-										"text": {
-											"value": "INSERT INTO ctl.load_log (dataset, file_name, load_date, rows_copied, status, error_message, run_id)\nVALUES ('transactions', 'transactions_2026_@{pipeline().parameters.month}.csv', CAST(SYSUTCDATETIME() AS DATE), NULL, 'SUCCEEDED', NULL, '@{pipeline().RunId}');",
-											"type": "Expression"
-										}
+									"name": "log_failure",
+									"type": "Script",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 3,
+										"retryIntervalInSeconds": 90,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "ls_sql_serving",
+										"type": "LinkedServiceReference"
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "NonQuery",
+												"text": {
+													"value": "INSERT INTO ctl.load_log (dataset, file_name, load_date, rows_copied, status, error_message, run_id)\nVALUES ('transactions', 'transactions_2026_@{pipeline().parameters.month}.csv', CAST(SYSUTCDATETIME() AS DATE), NULL, 'FAILED', 'Source file not found in landing', '@{pipeline().RunId}');",
+													"type": "Expression"
+												}
+											}
+										],
+										"scriptBlockExecutionTimeout": "02:00:00"
 									}
-								],
-								"scriptBlockExecutionTimeout": "02:00:00"
-							}
+								},
+								{
+									"name": "fail_missing_file",
+									"type": "Fail",
+									"dependsOn": [
+										{
+											"activity": "log_failure",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"message": "Source file not found in landing",
+										"errorCode": "FileNotFound"
+									}
+								}
+							]
 						}
 					]
-				}
-			},
-			{
-				"name": "chk_already_loaded",
-				"type": "Script",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 3,
-					"retryIntervalInSeconds": 90,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"linkedServiceName": {
-					"referenceName": "ls_sql_serving",
-					"type": "LinkedServiceReference"
-				},
-				"typeProperties": {
-					"scripts": [
-						{
-							"type": "Query",
-							"text": "SELECT COUNT(*) AS n\nFROM ctl.load_log\nWHERE dataset = 'transactions'\n  AND file_name = 'transactions_2026_@{pipeline().parameters.month}.csv'\n  AND status = 'SUCCEEDED'"
-						}
-					],
-					"scriptBlockExecutionTimeout": "02:00:00"
-				}
-			},
-			{
-				"name": "if_not_loaded",
-				"type": "IfCondition",
-				"state": "Active",
-				"onInactiveMarkAs": "Succeeded",
-				"dependsOn": [
-					{
-						"activity": "chk_already_loaded",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"expression": {
-						"value": "@lessOrEquals(int(activity('chk_already_loaded').output.resultSets[0].rows[0].n), 0)",
-						"type": "Expression"
-					}
 				}
 			}
 		],
