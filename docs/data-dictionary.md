@@ -65,7 +65,7 @@ Grain: one row per day per currency (1 Jan to 30 Sep 2026).
 | currency | USD, EUR, GBP |
 | rate_to_aed | AED per 1 unit of currency |
 
-## transactions (`raw/transactions/2026/MM/transactions_2026_MM.csv`) · about 222,600 rows over 9 files · CSV
+## transactions (`raw/transactions/month=2026-MM/transactions_2026_MM.csv`) · about 222,600 rows over 9 files · CSV
 Grain: one row per transaction event. One file per month, January to September 2026.
 
 | Column | Notes |

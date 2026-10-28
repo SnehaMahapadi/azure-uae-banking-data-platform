@@ -58,7 +58,7 @@ Tags on every resource (set on the resource group and apply to resources if offe
 ## 5. Upload the first data
 
 1. Generate the data (see the README) and open the `landing` container.
-2. Upload the `raw` folder so the structure is `landing/raw/customers/...`, `landing/raw/transactions/2026/01/...` and so on. Storage Explorer in the portal, or the Azure Storage Explorer desktop app, both work for folders.
+2. Upload the `raw` folder so the structure is `landing/raw/customers/...`, `landing/raw/transactions/month=2026-01/...` and so on. Storage Explorer in the portal, or the Azure Storage Explorer desktop app, both work for folders.
 3. For Phase 1, upload only **January** transactions plus the reference files (customers, accounts, merchants, FX). The remaining months arrive in Phase 3 to practise incremental loads.
 4. Screenshot the container into `docs/screenshots/phase0-landing.png`.
 
