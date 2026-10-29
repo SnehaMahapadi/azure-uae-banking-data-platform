@@ -14,11 +14,11 @@
 		"type": "AzureSqlTable",
 		"schema": [],
 		"typeProperties": {
-			"schema": {
+			"schema": "gold",
+			"table": {
 				"value": "@dataset().p_table",
 				"type": "Expression"
-			},
-			"table": ""
+			}
 		}
 	}
 }
