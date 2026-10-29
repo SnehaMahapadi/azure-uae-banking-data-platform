@@ -1,0 +1,24 @@
+{
+	"name": "ds_sql_gold",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql_serving",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"p_table": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().p_table",
+				"type": "Expression"
+			},
+			"table": ""
+		}
+	}
+}
