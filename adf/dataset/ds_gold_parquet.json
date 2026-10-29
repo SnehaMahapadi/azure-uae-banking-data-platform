@@ -1,0 +1,28 @@
+{
+	"name": "ds_gold_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_uaebank",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"p_folder": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": {
+					"value": "export/@{dataset().p_folder}",
+					"type": "Expression"
+				},
+				"fileSystem": "gold"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
