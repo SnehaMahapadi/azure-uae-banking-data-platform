@@ -1,0 +1,13 @@
+{
+	"name": "ls_databricks",
+	"properties": {
+		"annotations": [],
+		"type": "AzureDatabricks",
+		"typeProperties": {
+			"domain": "https://adb-7405606049027919.19.azuredatabricks.net",
+			"authentication": "MSI",
+			"workspaceResourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-uae-banking-dev/providers/Microsoft.Databricks/workspaces/dbw-uae-banking-dev",
+			"existingClusterId": "1021-191412-0re4ltya"
+		}
+	}
+}
