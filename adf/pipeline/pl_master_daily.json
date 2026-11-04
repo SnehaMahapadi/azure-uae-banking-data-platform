@@ -1,0 +1,59 @@
+{
+	"name": "pl_master_daily",
+	"properties": {
+		"activities": [
+			{
+				"name": "run_reference",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_ingest_reference_data",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "run_transactions",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "run_reference",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_ingest_transactions",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"month": {
+							"value": "@pipeline().parameters.month",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"month": {
+				"type": "string",
+				"defaultValue": "01"
+			}
+		},
+		"annotations": []
+	}
+}
