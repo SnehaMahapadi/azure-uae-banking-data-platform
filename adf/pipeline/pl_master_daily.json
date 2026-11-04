@@ -73,6 +73,35 @@
 					"referenceName": "ls_databricks",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "run_load_sql",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "run_gold_build",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_load_gold_to_sql",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"tables": {
+							"value": "@createArray('dim_date','dim_merchant','dim_account','dim_customer','fact_transactions')",
+							"type": "Expression"
+						}
+					}
+				}
 			}
 		],
 		"parameters": {
