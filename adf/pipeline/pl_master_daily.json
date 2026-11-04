@@ -46,6 +46,33 @@
 						}
 					}
 				}
+			},
+			{
+				"name": "run_gold_build",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "run_transactions",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.00:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Shared/uae-banking/20_gold_build"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_databricks",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
 		"parameters": {
