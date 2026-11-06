@@ -1,6 +1,6 @@
 # ADR-003: Azure SQL Database as the serving layer
 
-Status: **Proposed** (confirm in Phase 4)
+Status: **Accepted** (6 November 2026)
 
 ## Context
 
@@ -26,3 +26,17 @@ Load the gold tables into **Azure SQL Database** (using the free offer) and let 
 
 - Synapse dedicated SQL pool: too costly for the credit, and its lifecycle position is unverified.
 - Query Delta directly from Power BI: possible, but hides the T-SQL modelling skills this project is meant to show.
+
+## Outcome (checked 6 November 2026)
+
+Read from the database Overview page in the Azure portal:
+
+- Pricing tier shown: Free - General Purpose - Serverless (Gen5, 2 vCores).
+- Overage billing: Disabled. This should mean the database stops instead of billing when the monthly allowance runs out. That behaviour was not tested.
+- Free monthly vCore amount: 94,693 vCore seconds remaining.
+- Storage: 193 MB used of 32 GB.
+- Status: Paused when idle, so auto-pause is working.
+
+What this shows: the whole build, including repeated loads and test reruns, used roughly 5,300 of the 100,000 vCore-seconds in the current period (assuming the 100,000 figure from Microsoft's free-offer page, and that the period covers these runs; the period start date was not checked). About 222,600 transaction rows fit comfortably.
+
+Practical effect of auto-pause: the first query after a pause can fail with "not currently available". Retrying after a short wait works.

@@ -30,7 +30,7 @@ Databricks reads the lake through Unity Catalog: storage credential `cred_uae_ba
 - Whether shared-key access to the storage account is disabled is **unverified**.
 - This was left open on purpose. The classic Databricks cluster and the Data Factory auto-resolve runtime reach storage over public endpoints. Closing it properly needs private endpoints or VNet injection, which is beyond this project's scope and credit.
 - The SQL server also has a public endpoint. On 6 Nov 2026 it had 8 client-IP firewall rules created from the portal (one `ClientIp` rule and seven `QueryEditorClientIPAddress` rules), and the exception "Allow Azure services and resources to access this server" was ticked, which Data Factory relies on. The seven older rules were removed the same day, leaving only the current client address. The addresses are not recorded here.
-- Which sign-in methods the SQL server accepts (Microsoft Entra only, or SQL authentication as well) was not checked and is **unverified**.
+- The SQL server accepts SQL authentication as well as Microsoft Entra: the setting "Support only Microsoft Entra authentication for this server" is switched off (checked 6 Nov 2026), and a Microsoft Entra admin is set. Which accounts actually sign in with SQL authentication was not checked. A production setup would turn Entra-only authentication on.
 
 ## Known trade-offs
 
