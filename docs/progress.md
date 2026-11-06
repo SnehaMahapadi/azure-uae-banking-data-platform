@@ -10,10 +10,10 @@ Status on 28 October 2026. Everything below was run in my own Azure subscription
 | 1 Ingestion with Data Factory | Done | Two pipelines, `ctl.load_log` control table, nine monthly transaction files copied, failure path tested |
 | 2 Bronze and silver | Done, one deviation (see below) | Five bronze and five silver Delta tables, counts reconciled, injected data quality problems found and matched to the answer key |
 | 3 Incremental loads and SCD2 | Done, one gap (see below) | `MERGE` rerun proof, late-arriving row proof, SCD2 customers (5,750 rows, 5,000 current, 750 customers with two rows) |
-| 4 Gold, Azure SQL, Power BI | Not started | |
-| 5 Orchestration and security | Not started | |
+| 4 Gold, Azure SQL, Power BI | Done, see gaps below | Gold Delta tables (dim_date 273, dim_merchant 602, dim_account 7,835, dim_customer 5,751, fact_transactions 221,759) loaded to Azure SQL with indexes, two views and `gold.usp_monthly_kpi`; AED totals reconciled between silver and gold; Power BI report committed in `PowerBI/` |
+| 5 Orchestration and security | Done, one gap (see below) | `pl_master_daily` (reference ingest, transactions ingest, `20_gold_build` notebook, SQL load) ran end to end on 6 Nov 2026 and failed cleanly on three forced missing-month runs; access documented in `security-notes.md` |
 | 6 Real-time on Azure Data Explorer | Not started, optional | |
-| 7 Monitoring, export, tear-down | Not started | |
+| 7 Monitoring, export, tear-down | In progress | Notebooks exported and committed 6 Nov 2026 |
 
 ## Deviations and gaps (stated honestly)
 
@@ -23,6 +23,11 @@ Status on 28 October 2026. Everything below was run in my own Azure subscription
 - **SCD2 source.** The history table was built from the bronze customers table, not from silver.
 - **Log gap.** `rows_copied` in `ctl.load_log` is NULL for the transaction loads, so row counts are checked in Databricks, not from the log.
 - **File events** were skipped for the Unity Catalog external locations (see ADR-005).
+- **Phase 5: failure alert not verified.** The Azure Monitor rule `alert-master-failed` exists (metric `PipelineFailedRuns` greater than 0, four pipelines, 5-minute lookback, email action group). The failures were recorded in the metric, but no alert instance fired in three tests on 6 Nov 2026 and no email arrived. The cause was not found.
+- **Phase 5: the master pipeline does not run bronze and silver.** It runs ingestion, then the gold build, then the SQL load. A new month would reach bronze/raw but not silver or gold until the bronze and silver notebook cells are run by hand.
+- **Phase 5: the master pipeline writes no result row to `ctl.load_log`.** The skip route of `pl_ingest_transactions` logs nothing, so a skipped month leaves no row.
+- **Phase 5: Key Vault not used**, because no secret exists (see `security-notes.md`).
+- **Phase 4: Power BI totals differ slightly by design.** Report filters exclude merchant emirate Unknown, so the cards differ a little from the monthly chart total (for example 23.56M against 23.63M). A footnote on the report explains it.
 
 ## Environment record
 
@@ -60,9 +65,13 @@ The "available credits" figure lags behind the real spend.
 8. **In Data Factory with Git connected, Save commits to `main`.** Run `git pull` locally before committing anything else.
 9. **A notebook or cluster restart loses session variables.** Re-run the definitions cell first.
 10. **Avoid Databricks serverless on this subscription.** Its price is unverified, so classic single-node compute is used.
+11. **Data Factory calling Databricks with managed identity needs two things:** Contributor for the Data Factory identity on the workspace, and Unity Catalog grants on the external locations for that identity. The cluster ID has to be typed in, because the dropdown stays empty.
+12. **Trigger now runs the published version.** An unpublished pipeline fails with "Pipeline is not found, please publish first". Debug runs do not appear in the alert metrics list.
+13. **Azure Monitor alert forms need every dimension filled.** A blank FailureType gave "Dimension list contains nulls or empty dimension values". Creating the action group first failed with a missing subscription registration message.
+14. **Check the notebook compute selector before pressing Run.** It can show Serverless, and one 30-second gold run happened on serverless on 4 Nov before it was noticed. The cost is unverified.
 
 ## Open items
 
-- Export the Databricks notebooks to `databricks/`.
-- Phase 4 onward as listed in [`build-plan.md`](build-plan.md).
+- Find out why the failure alert does not fire (rule exists, firing not verified).
+- Finish README and ADR updates and screenshots, final export by 7 Nov, tear-down by 9 Nov.
 - Test the `load` route when a new month is available, or in the Phase 5 master pipeline.

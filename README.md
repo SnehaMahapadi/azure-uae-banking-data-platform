@@ -78,14 +78,14 @@ Folders marked "added in Phase N" are created when that phase is built, so the r
 
 | Phase | Title | Status |
 |---|---|---|
-| 0 | Foundations: resource group, storage, budget alert | In progress |
-| 1 | Ingestion with Data Factory | Not started |
-| 2 | Bronze and silver with Databricks | Not started |
-| 3 | Incremental loads and SCD2 | Not started |
-| 4 | Gold star schema and Azure SQL serving | Not started |
-| 5 | Orchestration, security and secrets | Not started |
+| 0 | Foundations: resource group, storage, budget alert | Done |
+| 1 | Ingestion with Data Factory | Done |
+| 2 | Bronze and silver with Databricks | Done (one deviation, see progress log) |
+| 3 | Incremental loads and SCD2 | Done (one gap, see progress log) |
+| 4 | Gold star schema and Azure SQL serving | Done |
+| 5 | Orchestration, security and secrets | Done, failure alert firing not verified |
 | 6 | Real-time branch with Azure Data Explorer | Not started |
-| 7 | Monitoring, documentation and wrap-up | Not started |
+| 7 | Monitoring, documentation and wrap-up | In progress |
 
 Skill-by-skill progress: [`docs/skills-tracker.md`](docs/skills-tracker.md).
 
