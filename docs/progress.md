@@ -53,6 +53,8 @@ Status on 28 October 2026. Everything below was run in my own Azure subscription
 
 The "available credits" figure lags behind the real spend.
 
+Later readings of "costs incurred this month" (a new billing month started in November): 4 Nov INR 131.48, 5 Nov (12:43) INR 332.67, 6 Nov (22:13) INR 343.20. "Available credits" still showed INR 19,043.85 on 6 Nov, so it was not updated. The credit expires on 10 November 2026.
+
 ## Lessons learned
 
 1. **The free serverless SQL database auto-pauses.** The first connection after a pause can time out ("Server provided routing information, but timeout already expired"). Fix: Retry 3 with 90 seconds on the Script activities that write to `ctl.load_log`.
