@@ -113,7 +113,7 @@ The transaction files contain injected problems on purpose: duplicates, late-arr
 ```
 adf/           Data Factory pipelines, linked services (exported through ADF Git integration)
 databricks/    notebooks as .py source: 00_smoke_test, 01_bronze_ingest (bronze, silver, MERGE, SCD2), 20_gold_build
-sql/           T-SQL for the serving layer (gold_serving.sql, gold_procedures.sql)
+sql/           T-SQL for the serving layer (gold_serving.sql, gold_procedures.sql, ctl_tables.sql)
 PowerBI/       report file and PDF export
 docs/          architecture, decisions (ADRs), progress log, security notes, cost notes, screenshots
 scripts/       dataset generator
@@ -150,7 +150,7 @@ Screenshots in [`docs/screenshots/`](docs/screenshots/): resource group contents
 1. **The master pipeline does not run bronze and silver.** Those notebooks are run by hand; `pl_master_daily` covers ingestion, the gold build and the SQL load.
 2. **The failure alert was configured but never seen to fire.** An Azure Monitor metric alert on failed pipeline runs exists with an email action group. Three failed runs did not produce an alert instance or an email, and the cause was not found. Treat alerting as unverified.
 3. **Limited test coverage in the master pipeline.** Month `01` (already loaded) and month `10` (missing) were run end to end. The "load" route for a new month was not exercised through the master pipeline.
-4. **Control table gaps.** `rows_copied` in `ctl.load_log` is NULL, the master pipeline does not write a result row, and the SQL that creates the `ctl` tables is not in `sql/`.
+4. **Control table gaps.** `rows_copied` in `ctl.load_log` is NULL, the master pipeline does not write a result row, and the table script `sql/ctl_tables.sql` was rebuilt from the database catalog after the fact (the identity seed and increment were not captured; 1,1 is assumed).
 5. **No quarantine table.** Data-quality problems are flagged with `dq_` columns in silver and filtered in gold. The notebooks do not write a separate quarantine table.
 6. **Security trade-offs** of a learning build: Contributor on the Databricks workspace for ADF, one database for both control and serving tables, SQL authentication enabled next to Microsoft Entra, public endpoints. Not production patterns.
 7. **No Key Vault, CI/CD, infrastructure as code, private endpoints or data catalog.** Named in [`docs/architecture.md`](docs/architecture.md) as production additions, not built.
