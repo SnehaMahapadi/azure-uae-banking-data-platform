@@ -143,7 +143,7 @@ Summary: no secrets are stored in the repo (searches for passwords, keys and tok
 
 ## Evidence
 
-Screenshots in [`docs/screenshots/`](docs/screenshots/): resource group contents (`phase0-resource-group.png`), storage containers (`phase0-storage-containers.png`), SQL row counts (`phase4-sql-row-counts.png`), master pipeline canvas (`phase5-master-pipeline-canvas.png`), successful and failed runs (`phase5-master-success.png`, `phase5-master-failure.png`, `phase5-master-failure-error.png`, `phase5-monitor-runs.png`), the Databricks run started by ADF (`phase5-databricks-runs.png`), gold reconciliation output (`phase5-gold-reconciliation.png`) and daily costs (`phase7-cost-daily.png`).
+Screenshots in [`docs/screenshots/`](docs/screenshots/): resource group contents (`phase0-resource-group.png`), storage containers (`phase0-storage-containers.png`), SQL row counts (`phase4-sql-row-counts.png`), master pipeline canvas (`phase5-master-pipeline-canvas.png`), successful and failed runs (`phase5-master-success.png`, `phase5-master-failure.png`, `phase5-master-failure-error.png`, `phase5-monitor-runs.png`), the Databricks run started by ADF (`phase5-databricks-runs.png`), gold reconciliation output (`phase5-gold-reconciliation.png`), daily costs (`phase7-cost-daily.png`), the Azure SQL free-offer settings (`phase0-sql-free-offer.png`) and the Databricks cluster configuration (`phase0-databricks-cluster.png`).
 
 ## Limitations and known gaps
 
