@@ -200,4 +200,4 @@ Never commit secrets, tokens, keys or connection strings.
 
 ## Author
 
-Sneha Mahapadi. Senior BI analyst moving into data engineering.
+Sneha Mahapadi. BI and analytics professional with 8+ years of experience, building hands-on Azure data engineering projects.
