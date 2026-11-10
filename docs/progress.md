@@ -77,3 +77,11 @@ Later readings of "costs incurred this month" (a new billing month started in No
 - Find out why the failure alert does not fire (rule exists, firing not verified).
 - Finish README and ADR updates and screenshots, final export by 7 Nov, tear-down by 9 Nov.
 - Test the `load` route when a new month is available, or in the Phase 5 master pipeline.
+
+## 10 November 2026: tear-down
+
+- Code, notebooks, ADF JSON, SQL scripts, the Power BI report and screenshots were pushed to GitHub before deleting anything.
+- g-uae-banking-dev was deleted on 9 November 2026.
+- The Databricks managed group (storage account and access connector) was left behind and deleted by hand on 10 November 2026. Only NetworkWatcherRG remains.
+- Final cost figures post late and were not rechecked after the delete.
+- Phase 6 (Azure Data Explorer and KQL) was not started.

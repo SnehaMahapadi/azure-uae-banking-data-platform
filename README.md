@@ -159,6 +159,7 @@ Screenshots in [`docs/screenshots/`](docs/screenshots/): resource group contents
 
 ## Things that went wrong, and what they taught
 
+- **Leftover managed group after teardown.** Deleting `rg-uae-banking-dev` removed the Databricks workspace but not its managed resource group. That group held a storage account and an access connector, and its activity log showed an hourly failing `Write EventSubscription` operation. I deleted the group by hand on 10 November 2026 and confirmed that only `NetworkWatcherRG` remained.
 - A trigger run uses the **published** version of a pipeline, not the saved draft. "Pipeline is not found, please publish first" means Publish was skipped.
 - Debug runs do not appear in Azure Monitor alert metrics, so alert tests need triggered runs.
 - The first query after the SQL database auto-pauses can fail with "not currently available". Retrying works.
@@ -179,7 +180,7 @@ More in [`docs/progress.md`](docs/progress.md).
 | 4 | Gold star schema and Azure SQL serving | Done |
 | 5 | Orchestration, security and secrets | Done, with the alert caveat above |
 | 6 | Real-time branch with Azure Data Explorer | Not started |
-| 7 | Monitoring, documentation and wrap-up | In progress |
+| 7 | Monitoring, documentation and wrap-up | Done. Azure resources deleted on 9 and 10 November 2026. |
 
 Skill-by-skill evidence: [`docs/skills-tracker.md`](docs/skills-tracker.md).
 
