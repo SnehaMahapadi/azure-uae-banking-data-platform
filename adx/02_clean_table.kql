@@ -1,0 +1,39 @@
+// 02_clean_table.kql
+// Builds txn_clean from txn_raw (the "silver" step in KQL).
+// Rules, based on profiling txn_raw:
+//   - duplicates: 883 exact duplicate rows, all identical copies -> distinct *
+//   - timestamps: ISO "yyyy-MM-dd HH:mm:ss" (222,425 rows) and "dd/MM/yyyy HH:mm" (217 rows) -> both parsed.
+//     Times are UAE local time (UTC+4). ADX datetime has no time zone, so they are NOT converted.
+//   - currency: lower-case and trailing-space variants -> toupper(trim(...)) gives AED, EUR, GBP, USD
+//   - amount: 326 missing and 217 negative in the raw data; rows are KEPT and flagged, not deleted
+//   - fraud_flag: text -> int
+// Note: KQL has no parse_datetime(); the dd/MM/yyyy format is built with make_datetime.
+
+.set-or-replace txn_clean <|
+txn_raw
+| distinct *
+| extend ts_text = trim(@"\s+", txn_timestamp)
+| extend txn_ts = iff(ts_text matches regex @"^\d{2}/\d{2}/\d{4}",
+        make_datetime(toint(substring(ts_text, 6, 4)), toint(substring(ts_text, 3, 2)),
+                      toint(substring(ts_text, 0, 2)), toint(substring(ts_text, 11, 2)),
+                      toint(substring(ts_text, 14, 2)), 0),
+        todatetime(ts_text))
+| extend amount_num = todouble(amount)
+| extend currency_clean = toupper(trim(@"\s+", currency))
+| extend fraud_flag_int = toint(fraud_flag)
+| extend dq_missing_amount = isnull(amount_num),
+         dq_negative_amount = amount_num < 0
+| project transaction_id, account_id, merchant_id, txn_ts, txn_type, channel,
+          amount = amount_num, currency = currency_clean, country, status,
+          decline_reason, fraud_flag = fraud_flag_int,
+          dq_missing_amount, dq_negative_amount
+
+// ---- Checks (results recorded 13 Nov 2026) ----
+// Exact distinct count (dcount() is only an estimate, do not use it for pass/fail):
+// txn_clean | summarize n=count() by transaction_id | summarize ids=count(), repeated_ids=countif(n > 1)
+//                                           -> ids 221,759, repeated_ids 0
+// txn_clean | summarize rows=count(), null_ts=countif(isnull(txn_ts)), null_flag=countif(isnull(fraud_flag)),
+//             missing_amt=countif(dq_missing_amount), negative_amt=countif(dq_negative_amount),
+//             min_ts=min(txn_ts), max_ts=max(txn_ts)
+//                                           -> 221,759 rows, 0, 0, 325, 217, 1 Jan 2026 to 30 Sep 2026
+// dd/mm rows spot check: 03/05/2026 07:50 became 3 May 2026 07:50 (day first, as intended).

@@ -1,0 +1,26 @@
+// 03_fx_and_aed.kql
+// Loads fx_rates (819 rows: USD, EUR, GBP per day, 1 Jan to 30 Sep 2026) and builds txn_aed,
+// which converts every amount to AED using that day's rate.
+// Load method for fx_rates.csv: Get data > Local file > existing table fx_rates >
+//   Inspect tab: "Use existing mapping" ON with fx_rates_map, and "First row header" ON.
+
+.create table fx_rates (rate_date:datetime, currency:string, rate_to_aed:real)
+
+.create table fx_rates ingestion csv mapping 'fx_rates_map' '[{"column":"rate_date","datatype":"datetime","ordinal":0},{"column":"currency","datatype":"string","ordinal":1},{"column":"rate_to_aed","datatype":"real","ordinal":2}]'
+
+// fx_rates | count                          -> 819
+// fx_rates | summarize rows=count(), first_day=min(rate_date), last_day=max(rate_date),
+//            min_rate=min(rate_to_aed), max_rate=max(rate_to_aed) by currency
+//                                           -> 273 rows each; USD fixed at 3.6725 (AED peg)
+
+.set-or-replace txn_aed <|
+txn_clean
+| extend rate_date = startofday(txn_ts)
+| lookup kind=leftouter fx_rates on rate_date, currency
+| extend amount_aed = round(iff(currency == "AED", amount, amount * rate_to_aed), 2)
+| project-away rate_date
+
+// ---- Check (recorded 16 Nov 2026) ----
+// txn_aed | summarize rows=count(), non_aed_no_rate=countif(currency != "AED" and isnull(rate_to_aed)),
+//           null_aed=countif(isnull(amount_aed)), missing_amt=countif(dq_missing_amount)
+//                                           -> 221,759 / 0 / 325 / 325

@@ -81,7 +81,18 @@ Later readings of "costs incurred this month" (a new billing month started in No
 ## 10 November 2026: tear-down
 
 - Code, notebooks, ADF JSON, SQL scripts, the Power BI report and screenshots were pushed to GitHub before deleting anything.
-- g-uae-banking-dev was deleted on 9 November 2026.
+- `rg-uae-banking-dev` was deleted on 9 November 2026.
 - The Databricks managed group (storage account and access connector) was left behind and deleted by hand on 10 November 2026. Only NetworkWatcherRG remains.
 - Final cost figures post late and were not rechecked after the delete.
 - Phase 6 (Azure Data Explorer and KQL) was not started.
+
+## 17 November 2026: Phase 6, KQL on Azure Data Explorer
+
+- Done after the Azure teardown, on a free Azure Data Explorer cluster that needs no subscription. Scripts are in `adx/`.
+- Loaded the nine transaction CSVs as raw text (222,642 rows). The Get data wizard created its own mapping and extra typed columns several times until "Use existing mapping" was switched on before Finish. Fix: drop and recreate the table, then check the Inspect screen before clicking Finish.
+- Cleaned into a typed table of 221,759 rows: 883 exact duplicates removed, both timestamp formats parsed (217 rows were `dd/MM/yyyy`), currency codes normalised, 325 missing and 217 negative amounts kept and flagged.
+- Two mistakes along the way: KQL has no `parse_datetime()` (the date was built with `make_datetime`), and `dcount()` is an estimate, so the exact duplicate check used `count()` by key.
+- Loaded `fx_rates` (819 rows) and converted every amount to AED (no foreign-currency row missed a rate).
+- Findings: decline rates are similar across channels (3.3 to 3.9 percent); the simulated fraud label is higher for foreign and night-time transactions; five unusually high AED spend days were flagged, with no cause investigated.
+- Not done: merchants and accounts were not loaded (no orphan-key or late-arriving-row checks in ADX), and nothing was streamed.
+- `fx_rates.csv` was regenerated from `scripts/generate_dataset.py` (seed 7) on 16 November because the original file was on another computer. Its row counts match `docs/dq-answer-key.json`.

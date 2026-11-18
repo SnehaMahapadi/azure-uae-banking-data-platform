@@ -1,0 +1,62 @@
+// 04_analysis.kql
+// Analysis queries on the cleaned data. Run each query on its own.
+// Rows with a missing or negative amount are excluded from value totals (they stay flagged in the table).
+// Reminder: fraud_flag is a SIMULATED label, so the fraud results show the generator's rules,
+// not real-world fraud behaviour.
+
+// 1. Monthly totals per currency (no currency mixing)
+txn_clean
+| where status == "SUCCESS" and not(dq_missing_amount) and not(dq_negative_amount)
+| summarize txns=count(), total=round(sum(amount), 0) by month=startofmonth(txn_ts), currency
+| order by month asc, currency asc
+
+// 2. Decline rate by channel (rates are similar, 3.3% to 3.9%)
+txn_clean
+| summarize txns=count(), declined=countif(status == "DECLINED") by channel
+| extend decline_pct = round(100.0 * declined / txns, 2)
+| order by decline_pct desc
+
+// 3. Transactions by hour of day (UAE local time). The flat floor at hours 0-4 is built into the generator.
+txn_clean
+| summarize txns=count() by hour=hourofday(txn_ts)
+| order by hour asc
+| render columnchart
+
+// 4. Fraud-flag rate by channel (0.71% to 0.92%, differences too small to call)
+txn_clean
+| summarize txns=count(), fraud=sum(fraud_flag) by channel
+| extend fraud_pct = round(100.0 * fraud / txns, 3)
+| order by fraud_pct desc
+
+// 5. Daily AED spend with anomaly detection (five upward spike days flagged at threshold 1.5)
+txn_clean
+| where currency == "AED" and status == "SUCCESS" and not(dq_missing_amount) and not(dq_negative_amount)
+| make-series spend=sum(amount) on txn_ts from datetime(2026-01-01) to datetime(2026-10-01) step 1d
+| extend (anomalies, score, baseline) = series_decompose_anomalies(spend, 1.5, 7)
+| render anomalychart with (anomalycolumns=anomalies)
+
+// 5b. Which days were flagged: 7 Jun, 29 Jul, 29 Aug, 31 Aug, 20 Sep 2026 (all spikes, no dips)
+txn_clean
+| where currency == "AED" and status == "SUCCESS" and not(dq_missing_amount) and not(dq_negative_amount)
+| make-series spend=sum(amount) on txn_ts from datetime(2026-01-01) to datetime(2026-10-01) step 1d
+| extend (anomalies, score, baseline) = series_decompose_anomalies(spend, 1.5, 7)
+| mv-expand txn_ts to typeof(datetime), spend to typeof(double), baseline to typeof(double), anomalies to typeof(int)
+| where anomalies != 0
+| project day=txn_ts, weekday=dayofweek(txn_ts) / 1d, spend=round(spend, 0), baseline=round(baseline, 0), anomalies
+
+// 6. Monthly card purchase value in AED (one combined number per month)
+txn_aed
+| where txn_type == "PURCHASE" and status == "SUCCESS" and not(dq_missing_amount) and not(dq_negative_amount)
+| summarize purchases=count(), total_aed=round(sum(amount_aed), 0) by month=startofmonth(txn_ts)
+| order by month asc
+| project month, total_aed
+| render columnchart
+
+// 7. Fraud-flag rate by origin and time of day
+//    domestic 0.66% / 1.42% at night; foreign 2.57% / 3.30% at night (foreign-night is only 19 flags)
+txn_aed
+| extend origin = iff(country == "AE", "domestic", "foreign"),
+         period = iff(hourofday(txn_ts) <= 4, "night 00-04", "other hours")
+| summarize txns=count(), fraud=sum(fraud_flag) by origin, period
+| extend fraud_pct = round(100.0 * fraud / txns, 2)
+| order by origin asc, period asc

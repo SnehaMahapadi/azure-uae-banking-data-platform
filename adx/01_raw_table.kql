@@ -1,0 +1,23 @@
+// 01_raw_table.kql
+// Cluster: uae-banking-free (free Azure Data Explorer cluster), database: bankingdb
+// Design: raw-as-text (bronze-like). Every column is a string; cleaning happens later in KQL.
+// Load method: ADX web UI > right-click database > Get data > Local file, one load for all nine
+//   monthly CSV files (transactions_2026_01.csv ... transactions_2026_09.csv).
+// Lesson: for an existing table the wizard creates its own mapping and adds typed extra columns
+//   unless "Use existing mapping" is switched ON and txn_raw_map is chosen on the Inspect tab.
+//   Check that screen BEFORE clicking Finish.
+// WARNING: the first line drops the table. Run this file only to rebuild from scratch.
+
+.drop table txn_raw ifexists
+
+.create table txn_raw (transaction_id:string, account_id:string, merchant_id:string, txn_timestamp:string, txn_type:string, channel:string, amount:string, currency:string, country:string, status:string, decline_reason:string, fraud_flag:string)
+
+.create table txn_raw ingestion csv mapping 'txn_raw_map' '[{"column":"transaction_id","datatype":"string","ordinal":0},{"column":"account_id","datatype":"string","ordinal":1},{"column":"merchant_id","datatype":"string","ordinal":2},{"column":"txn_timestamp","datatype":"string","ordinal":3},{"column":"txn_type","datatype":"string","ordinal":4},{"column":"channel","datatype":"string","ordinal":5},{"column":"amount","datatype":"string","ordinal":6},{"column":"currency","datatype":"string","ordinal":7},{"column":"country","datatype":"string","ordinal":8},{"column":"status","datatype":"string","ordinal":9},{"column":"decline_reason","datatype":"string","ordinal":10},{"column":"fraud_flag","datatype":"string","ordinal":11}]'
+
+// ---- Checks after loading (results recorded 13 Nov 2026) ----
+// txn_raw | count                           -> 222,642 (matches the sum of the nine files)
+// txn_raw | getschema                       -> 12 columns, all string
+// .show ingestion failures                  -> none
+// txn_raw | summarize rows=count(), amount_blank=countif(isempty(amount)),
+//           flag_blank=countif(isempty(fraud_flag)), ts_blank=countif(isempty(txn_timestamp))
+//                                           -> 222,642 / 326 / 0 / 0
